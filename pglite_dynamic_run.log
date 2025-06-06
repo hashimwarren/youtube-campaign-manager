@@ -1,0 +1,2 @@
+Failed to start PGLite server: TypeError: PGLite is not a constructor
+    at main (file:///app/pglite-server.mjs:22:18)
