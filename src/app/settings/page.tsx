@@ -1,4 +1,3 @@
-// filepath: src/app/settings/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -37,7 +36,7 @@ const scheduleFormSchema = z.object({
   hour: z.string(),
   minute: z.string(),
   timezone: z.string(),
-  enabled: z.boolean().optional().default(true),
+  enabled: z.boolean().default(true),
 });
 
 type ScheduleFormValues = z.infer<typeof scheduleFormSchema>;
@@ -68,7 +67,7 @@ export default function SettingsPage() {
   const [lastRun, setLastRun] = useState<string | null>(null);
   const [nextRun, setNextRun] = useState<string | null>(null);
 
-  const form = useForm<ScheduleFormValues>({
+  const form = useForm({
     resolver: zodResolver(scheduleFormSchema),
     defaultValues: {
       dayOfWeek: "5", // Friday
@@ -110,9 +109,6 @@ export default function SettingsPage() {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        setNextRun(result.nextRun);
-        // Show success message
         alert("Schedule updated successfully!");
       } else {
         alert("Failed to update schedule");
@@ -134,7 +130,6 @@ export default function SettingsPage() {
       if (response.ok) {
         alert("Manual collection triggered successfully!");
         // Refresh last run time
-        const result = await response.json();
         setLastRun(new Date().toISOString());
       } else {
         alert("Failed to trigger collection");
@@ -145,8 +140,8 @@ export default function SettingsPage() {
     }
   };
 
-  const generateCronExpression = (values: ScheduleFormValues) => {
-    return `${values.minute} ${values.hour} * * ${values.dayOfWeek}`;
+  const generateCronExpression = (values: Partial<ScheduleFormValues>) => {
+    return `${values.minute || "00"} ${values.hour || "09"} * * ${values.dayOfWeek || "5"}`;
   };
 
   const formatDateTime = (isoString: string | null) => {

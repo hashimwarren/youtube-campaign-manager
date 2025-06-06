@@ -10,8 +10,8 @@ let currentSchedule = {
   minute: "00",
   timezone: "America/New_York",
   enabled: true,
-  lastRun: null,
-  nextRun: null,
+  lastRun: null as string | null,
+  nextRun: null as string | null,
 };
 
 export async function GET() {
@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
     };
 
     // Calculate next run time
-    const now = new Date();
     const nextRun = calculateNextRun(currentSchedule);
     currentSchedule.nextRun = nextRun;
 
