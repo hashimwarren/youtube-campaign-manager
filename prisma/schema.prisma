@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Creator {
+  id          String   @id @default(cuid())
+  name        String
+  channelId   String   @unique
+  email       String?
+  status      CreatorStatus
+  pitchNotes  Json?
+  campaigns   Campaign[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Campaign {
+  id          String   @id @default(cuid())
+  creatorId   String
+  creator     Creator  @relation(fields: [creatorId], references: [id])
+  videoId     String   @unique            // YouTube video ID
+  title       String
+  wentLiveAt  DateTime
+  costUsd     Float?
+  snapshots   VideoMetricSnapshot[]
+  notes       Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model VideoMetricSnapshot {
+  id          Int      @id @default(autoincrement())
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+  views       Int
+  comments    Int
+  capturedAt  DateTime @default(now())
+}
+
+enum CreatorStatus {
+  SELECTED     // researching/selected
+  PITCHED      // pitched to creator
+  AGREEMENT    // in agreement/negotiating
+  PUBLISHED    // video published/live
+}
