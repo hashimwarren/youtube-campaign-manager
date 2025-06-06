@@ -51,3 +51,10 @@ enum CreatorStatus {
   AGREEMENT    // in agreement/negotiating
   PUBLISHED    // video published/live
 }
+
+model TestMarker {
+  id        String   @id @default(cuid())
+  message   String
+  payload   Json?
+  createdAt DateTime @default(now())
+}

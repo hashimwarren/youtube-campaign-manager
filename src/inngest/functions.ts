@@ -80,9 +80,21 @@ export const testFunction = inngest.createFunction(
   { id: "test-function" },
   { event: "test.hello" },
   async ({ event }) => {
-    console.log("Hello from Inngest!", event.data);
+    console.log("Hello from Inngest! Event data:", event.data);
+
+    const markerMessage = event.data.message || "TestMarker created by testFunction";
+
+    await prisma.testMarker.create({
+      data: {
+        message: markerMessage,
+        payload: event.data as any, // Store the whole payload
+      },
+    });
+
+    console.log(`TestMarker created with message: ${markerMessage}`);
+
     return {
-      message: "Function executed successfully!",
+      message: "Function executed successfully and created a TestMarker!",
       timestamp: new Date().toISOString(),
       data: event.data,
     };
