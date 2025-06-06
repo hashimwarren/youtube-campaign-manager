@@ -51,4 +51,22 @@ This list is based on the project's requirements for a Kanban-style CRM, video t
 - [x] **Skeleton**: For loading states while data is being fetched.
 - [x] **Toast**: For displaying notifications. <!-- Corresponds to 'sonner' -->
 
-Absolutely—let’s swap every instance of “Sponsorship Pulse” for **“YouTube Campaign Manager”** so the branding is tidy from day one. Below are the quick-touch updates you’ll want to make across code, docs, and design artifacts.
+## YouTube Campaign Tracker
+
+Add a campaign-tracking feature under the `/campaigns` tab to capture YouTube video details and weekly metrics.
+
+- [ ] Create Prisma-backed API routes for campaigns:
+  - `POST /api/campaigns`: accept `{ videoId, wentLiveAt, costUsd? }`, fetch YouTube video metadata (title, description, views, comments), create `Campaign` and initial `VideoMetricSnapshot` via Prisma.
+  - `GET /api/campaigns`: return all campaigns with their latest snapshot.
+- [ ] Update `/app/campaigns/page.tsx`:
+  - Add an “Add Campaign” form (video ID input, date picker for live date, cost input).
+  - On submit, call `POST /api/campaigns`, then refresh the list.
+  - Display each campaign’s title, description, and most recent views/comments.
+- [ ] Define a weekly cron event in `src/inngest/events.ts`:
+  - Use schedule `0 9 * * FRI` with timezone `America/New_York`.
+- [ ] Implement an Inngest function in `src/inngest/functions.ts`:
+  - On cron event, fetch all campaigns via Prisma.
+  - For each, call YouTube Data API to get updated statistics.
+  - Persist new `VideoMetricSnapshot` entries via Prisma.
+- [ ] Register the new Inngest function in `src/app/api/inngest/route.ts`.
+- [ ] Test end-to-end: add a campaign via UI, verify API, check DB, then manually trigger or wait for cron to see new snapshots.

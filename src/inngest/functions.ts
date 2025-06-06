@@ -1,4 +1,9 @@
 import { inngest } from "./client";
+import { youtubeVideoMetricsCollectWeekly } from './events';
+import { prisma } from '@/lib/db';
+import { google } from 'googleapis';
+
+const youtube = google.youtube({ version: 'v3', auth: process.env.YOUTUBE_API_KEY });
 
 // A simple function that will be triggered when a campaign is created
 export const campaignCreated = inngest.createFunction(
@@ -81,5 +86,38 @@ export const testFunction = inngest.createFunction(
       timestamp: new Date().toISOString(),
       data: event.data,
     };
+  }
+);
+
+// Collect weekly YouTube video metrics
+export const collectWeeklyMetrics = inngest.createFunction(
+  { id: 'collect-weekly-video-metrics', name: youtubeVideoMetricsCollectWeekly.name },
+  { cron: '0 9 * * FRI' },
+  async ({ step }) => {
+    // Fetch all campaigns
+    const campaigns = await step.run('fetch-campaigns', async () => {
+      return prisma.campaign.findMany();
+    });
+
+    // Loop through campaigns and record metrics
+    for (const campaign of campaigns) {
+      await step.run(`metrics-${campaign.id}`, async () => {
+        const res = await youtube.videos.list({
+          part: ['statistics'],
+          id: [campaign.videoId],
+        });
+        const stats = res.data.items?.[0]?.statistics;
+        if (!stats) return null;
+
+        const views = Number(stats.viewCount || 0);
+        const comments = Number(stats.commentCount || 0);
+
+        return prisma.videoMetricSnapshot.create({
+          data: { campaignId: campaign.id, views, comments },
+        });
+      });
+    }
+
+    return { success: true, fetched: campaigns.length };
   }
 );
