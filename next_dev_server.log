@@ -1,0 +1,92 @@
+
+> youtube-campaign-tracker@0.1.0 dev
+> next dev --turbopack
+
+ ⚠ Port 3000 is in use, using available port 3002 instead.
+   ▲ Next.js 15.3.3 (Turbopack)
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.0.2:3002
+
+ ✓ Starting...
+Creating turbopack project { dir: '/app', testMode: true }
+ ○ Compiling middleware ...
+ ✓ Compiled middleware in 1885ms
+ ✓ Ready in 4.8s
+ ○ Compiling /test-db ...
+ ✓ Compiled /test-db in 8.7s
+prisma:tryLoadEnv Environment variables not found at null +23ms
+prisma:tryLoadEnv Environment variables not found at undefined +2ms
+prisma:tryLoadEnv No Environment variables loaded +1ms
+prisma:client checkPlatformCaching:postinstall true +2ms
+prisma:client checkPlatformCaching:ciName undefined +1ms
+prisma:tryLoadEnv Environment variables not found at null +1ms
+prisma:tryLoadEnv Environment variables not found at undefined +0ms
+prisma:tryLoadEnv No Environment variables loaded +0ms
+prisma:client dirname /app/node_modules/.prisma/client +1ms
+prisma:client relativePath ../../../prisma +0ms
+prisma:client cwd /app/prisma +1ms
+prisma:client clientVersion 6.9.0 +1ms
+prisma:client:libraryEngine internalSetup +2ms
+prisma:client prisma.$queryRawUnsafe(SELECT NOW() as current_time, version() as db_version, []) +144ms
+prisma:client Prisma Client call: +3ms
+prisma:client prisma.$queryRawUnsafe({
+  query: "SELECT NOW() as current_time, version() as db_version",
+  parameters: {
+    values: "[]",
+    __prismaRawParameters__: true
+  }
+}) +3ms
+prisma:client Generated request: +1ms
+prisma:client {
+  "action": "queryRaw",
+  "query": {
+    "arguments": {
+      "query": "SELECT NOW() as current_time, version() as db_version",
+      "parameters": "[]"
+    },
+    "selection": {}
+  }
+}
+ +1ms
+prisma:client:libraryEngine sending request, this.libraryStarted: false +2ms
+prisma:get-platform Found distro info:
+{
+  "targetDistro": "debian",
+  "familyDistro": "debian",
+  "originalDistro": "ubuntu"
+} +82ms
+prisma:get-platform Trying platform-specific paths for "debian" (and "ubuntu") +1ms
+prisma:get-platform Found libssl.so file using platform-specific paths: libssl.so.3 +55ms
+prisma:get-platform The parsed libssl version is: 3.0.x +0ms
+prisma:client:engines:resolveEnginePath enginePath /app/node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node +3ms
+prisma:client:libraryEngine library starting +15ms
+prisma:client:request_handler {
+  "clientVersion": "6.9.0",
+  "errorCode": "P1001",
+  "name": "PrismaClientInitializationError"
+} +130ms
+Database connection error: Error [PrismaClientInitializationError]:
+Invalid `prisma.$queryRawUnsafe()` invocation:
+
+
+Can't reach database server at `localhost:5433`
+
+Please make sure your database server is running at `localhost:5433`.
+    at async TestDbPage (src/app/test-db/page.tsx:6:6)
+  4 |   try {
+  5 |     const result =
+> 6 |       await sql.query`SELECT NOW() as current_time, version() as db_version`;
+    |      ^
+  7 |
+  8 |     return (
+  9 |       <div className="container mx-auto p-6"> {
+  clientVersion: '6.9.0',
+  errorCode: undefined,
+  retryable: undefined
+}
+
+[35m
+[Clerk]:[0m You are running in keyless mode.
+You can [35mclaim your keys[0m by visiting https://dashboard.clerk.com/apps/claim?token=f0y0s6wjtrxlkjxanov2v19xxn1ys1us5evtblq4&return_url=http%3A%2F%2Flocalhost%3A3002%2F
+
+ GET /test-db 200 in 11032ms

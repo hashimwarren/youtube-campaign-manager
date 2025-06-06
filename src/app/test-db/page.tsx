@@ -3,7 +3,7 @@ import { sql } from "@/lib/db";
 export default async function TestDbPage() {
   try {
     const result =
-      await sql`SELECT NOW() as current_time, version() as db_version`;
+      await sql.query`SELECT NOW() as current_time, version() as db_version`;
 
     return (
       <div className="container mx-auto p-6">
