@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Users, BarChart3, Home } from 'lucide-react';
+import { Users, BarChart3, Home, Settings } from 'lucide-react';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Creator CRM', href: '/creators', icon: Users },
   { name: 'Campaigns', href: '/campaigns', icon: BarChart3 },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export function Navigation() {

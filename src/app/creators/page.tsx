@@ -21,7 +21,7 @@ interface Creator {
   channelId: string;
   email?: string;
   status: CreatorStatus;
-  pitchNotes?: any;
+  pitchNotes?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }

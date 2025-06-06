@@ -3,12 +3,13 @@ import { prisma } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const creator = await prisma.creator.findUnique({
       where: {
-        id: params.id,
+        id: id,
       },
       include: {
         campaigns: true,
@@ -34,15 +35,16 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { name, channelId, email, status, pitchNotes } = body;
 
     const creator = await prisma.creator.update({
       where: {
-        id: params.id,
+        id: id,
       },
       data: {
         ...(name && { name }),
@@ -80,12 +82,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.creator.delete({
       where: {
-        id: params.id,
+        id: id,
       },
     });
 

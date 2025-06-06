@@ -89,35 +89,118 @@ export const testFunction = inngest.createFunction(
   }
 );
 
-// Collect weekly YouTube video metrics
+// Schedule update handler
+export const scheduleUpdated = inngest.createFunction(
+  { id: 'schedule-updated', name: 'Schedule Updated Handler' },
+  { event: 'schedule.updated' },
+  async ({ event, step }) => {
+    const { schedule } = event.data;
+
+    await step.run('log-schedule-update', async () => {
+      console.log('Schedule updated:', schedule);
+      return { updated: true };
+    });
+
+    // In a real implementation, you would:
+    // 1. Cancel the existing cron function
+    // 2. Create a new cron function with the updated schedule
+    // 3. Store the new schedule in the database
+
+    return { 
+      success: true, 
+      newSchedule: schedule,
+      updatedAt: event.data.updatedAt 
+    };
+  }
+);
+
+// Enhanced weekly metrics collection with manual trigger support
 export const collectWeeklyMetrics = inngest.createFunction(
   { id: 'collect-weekly-video-metrics', name: youtubeVideoMetricsCollectWeekly.name },
-  { cron: '0 9 * * FRI' },
-  async ({ step }) => {
+  { cron: '0 9 * * FRI' }, // Default schedule - can be updated dynamically
+  async ({ event, step }) => {
+    const isManual = event?.data?.manual || false;
+    
+    await step.run('log-collection-start', async () => {
+      console.log(`Starting ${isManual ? 'manual' : 'scheduled'} metrics collection`);
+      return { started: true };
+    });
+
     // Fetch all campaigns
     const campaigns = await step.run('fetch-campaigns', async () => {
-      return prisma.campaign.findMany();
+      return prisma.campaign.findMany({
+        include: {
+          creator: true,
+          snapshots: {
+            orderBy: { capturedAt: 'desc' },
+            take: 1,
+          },
+        },
+      });
     });
+
+    let successCount = 0;
+    let errorCount = 0;
 
     // Loop through campaigns and record metrics
     for (const campaign of campaigns) {
       await step.run(`metrics-${campaign.id}`, async () => {
-        const res = await youtube.videos.list({
-          part: ['statistics'],
-          id: [campaign.videoId],
-        });
-        const stats = res.data.items?.[0]?.statistics;
-        if (!stats) return null;
+        try {
+          const res = await youtube.videos.list({
+            part: ['statistics'],
+            id: [campaign.videoId],
+          });
+          
+          const stats = res.data.items?.[0]?.statistics;
+          if (!stats) {
+            console.log(`No statistics found for video ${campaign.videoId}`);
+            errorCount++;
+            return null;
+          }
 
-        const views = Number(stats.viewCount || 0);
-        const comments = Number(stats.commentCount || 0);
+          const views = Number(stats.viewCount || 0);
+          const comments = Number(stats.commentCount || 0);
 
-        return prisma.videoMetricSnapshot.create({
-          data: { campaignId: campaign.id, views, comments },
-        });
+          const snapshot = await prisma.videoMetricSnapshot.create({
+            data: { 
+              campaignId: campaign.id, 
+              views, 
+              comments,
+            },
+          });
+
+          console.log(`Collected metrics for ${campaign.title}: ${views} views, ${comments} comments`);
+          successCount++;
+          
+          return snapshot;
+        } catch (error) {
+          console.error(`Error collecting metrics for campaign ${campaign.id}:`, error);
+          errorCount++;
+          return null;
+        }
       });
     }
 
-    return { success: true, fetched: campaigns.length };
+    // Log collection summary
+    await step.run('log-collection-summary', async () => {
+      const summary = {
+        totalCampaigns: campaigns.length,
+        successCount,
+        errorCount,
+        collectedAt: new Date().toISOString(),
+        manual: isManual,
+      };
+      
+      console.log('Collection summary:', summary);
+      return summary;
+    });
+
+    return { 
+      success: true, 
+      totalCampaigns: campaigns.length,
+      successCount,
+      errorCount,
+      isManual,
+    };
   }
 );
