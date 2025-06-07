@@ -1,11 +1,9 @@
-import { authMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs";
 
-export default authMiddleware({
-  // Ensure that this route is public
+export default clerkMiddleware({
   publicRoutes: ['/'],
-  // Redirect unauthenticated users to the sign-in page
-  // Make sure to create this page in a later step
   signInUrl: '/sign-in',
+  signUpUrl: '/sign-up', // Added this line
 });
 
 export const config = {

@@ -42,8 +42,8 @@ export default function RootLayout({
               <Navigation />
               <div className="flex items-center gap-4">
                 <SignedOut>
-                  <SignInButton signInUrl="/sign-in" />
-                  <SignUpButton signUpUrl="/sign-up" />
+                  <SignInButton />
+                  <SignUpButton />
                 </SignedOut>
                 <SignedIn>
                   <UserButton />
