@@ -1,12 +1,13 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { authMiddleware } from "@clerk/nextjs/server";
 
-export default clerkMiddleware();
+export default authMiddleware({
+  // Ensure that this route is public
+  publicRoutes: ['/'],
+  // Redirect unauthenticated users to the sign-in page
+  // Make sure to create this page in a later step
+  signInUrl: '/sign-in',
+});
 
 export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
-  ],
+  matcher: ['/((?!.*\..*|_next).*)', '/', '/(api|trpc)(.*)'],
 };
